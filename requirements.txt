@@ -1,0 +1,3 @@
+fastapi
+pyJWT
+pwdlib[argon2]

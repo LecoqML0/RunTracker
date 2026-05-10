@@ -7,6 +7,7 @@ class User(SQLModel, table=True):
     username: str
     email: str = Field(unique=True)
     hashed_password: str
+    is_admin: bool = Field(default= False)
 
 class User_create_request(BaseModel):
     username: str

@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, create_engine, Session, select
 from typing import Annotated
-from fastapi import Depends
+from fastapi import Depends, Query, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
 from app.schemas.user import User, User_create_request
@@ -39,6 +39,12 @@ def create_user(user_request : User_create_request, session: Session) -> User:
     session.refresh(new_user)
     return new_user
 
+def admin_create_user(user: User, session: Session):
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
 def delete_user(user_id:int, session: Session):
     user = session.exec(select(User).where(User.user_id == user_id)).first()
     if not user:
@@ -46,6 +52,14 @@ def delete_user(user_id:int, session: Session):
     session.delete(user)
     session.commit()
     return user
+
+def admin_get_users(
+        session: Session,
+        offset: int = 0,
+        limit: Annotated[int, Query(le=100)] = 100
+        ) -> list[User]:
+    users = session.exec(select(User).offset(offset).limit(limit)).all()
+    return list(users)
 
 def create_run(run_request: Run_create_request, user_id: int, session: Session):
     new_run = Run(
@@ -84,6 +98,14 @@ def get_user_run(user_id: int, run_id: int, session: Session) -> Run:
         raise ValueError(f"Run {run_id} not found or not owned by user {user_id}")
     return run
 
+def admin_get_runs(
+        session: Session,
+        offset: int = 0,
+        limit: Annotated[int, Query(le=100)] = 100
+        ) -> list[Run]:
+    runs = session.exec(select(Run).offset(offset).limit(limit)).all()
+    return list(runs)
+
 async def get_active_user(
         token: Annotated[str, Depends(oauth2_scheme)],
         session: Session = Depends(get_session)
@@ -91,3 +113,10 @@ async def get_active_user(
     active_user_id = security.decode_token(token)
     active_user = get_user_from_id(active_user_id, session)
     return active_user
+
+async def get_admin_user(
+    current_user: Annotated[User, Depends(get_active_user)]
+) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return current_user

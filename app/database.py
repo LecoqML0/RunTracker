@@ -10,8 +10,7 @@ from app.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(settings.database_url, connect_args=connect_args)
+engine = create_engine(settings.database_url)
 
 def init_db():
     SQLModel.metadata.create_all(engine)

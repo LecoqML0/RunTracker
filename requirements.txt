@@ -4,3 +4,4 @@ pwdlib[argon2]
 fastapi[standard]
 sqlmodel
 python-dotenv
+psycopg2-binary

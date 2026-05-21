@@ -1,13 +1,25 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel
-from pydantic import BaseModel
 
-class Run(SQLModel, table=True):
+from app.schemas.user import UserRead
+
+class RunBase(SQLModel):
+    run_name: str
+    distance: float
+
+class RunDB(RunBase, table=True):
+    __tablename__ = "runs"  # type: ignore
     run_id : Optional[int] = Field(default=None, primary_key=True)
-    user_id : int = Field(foreign_key="user.user_id")
-    run_name: str
-    distance: float
+    user_id : int = Field(foreign_key="users.user_id")
 
-class Run_create_request(BaseModel):
-    run_name: str
-    distance: float
+class RunCreate(RunBase):
+    user_id : int
+
+class RunCreateForm(RunBase):
+    pass
+
+class RunRead(RunBase):
+    run_id: int
+    user_id: int
+
+    model_config = {"from_attributes": True}

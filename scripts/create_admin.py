@@ -1,12 +1,12 @@
 import sys
 
-import app.database as db
-from app.schemas.user import User
+from app.db.session import get_session
+from app.schemas.user import UserDB
 from app.security import hash_password
 
 def create_admin(email: str, password: str):
-    for session in db.get_session():
-        user = User(
+    for session in get_session():
+        user = UserDB(
             email=email,
             hashed_password=hash_password(password),
             is_admin=True,

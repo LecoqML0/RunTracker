@@ -3,9 +3,10 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
-from app.schemas.user import User_create_request
-from app.security import create_access_token, hash_password, verify_password
-from app.database import get_user_from_email, get_session, create_user
+from app.schemas.user import UserCreateForm, UserCreate, UserRead
+from app.security import create_access_token, verify_password
+from app.db.session import get_session
+import app.db.user as user_db
 
 router = APIRouter()
 
@@ -14,7 +15,7 @@ async def login(
     form_data: Annotated[OAuth2PasswordRequestForm,Depends()],
     session: Session = Depends(get_session)
 ):
-    active_user = get_user_from_email(form_data.username, session)
+    active_user = user_db.get_user_from_email(form_data.username, session)
 
     if not active_user or not active_user.user_id:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
@@ -26,12 +27,18 @@ async def login(
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(
-    user_request : User_create_request,
+    user_request_form : UserCreateForm,
     session: Session = Depends(get_session)
 ):
     try:
-        new_user = create_user(user_request, session)
-        return new_user
+        user_request = UserCreate(
+            username=user_request_form.username,
+            email=user_request_form.email,
+            password=user_request_form.password,
+            is_admin=False
+        )
+        new_user = user_db.create_user(user_request, session)
+        return UserRead.model_validate(new_user)
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

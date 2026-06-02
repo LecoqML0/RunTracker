@@ -30,7 +30,10 @@ cp .env.example .env
 # Edit it before launching (see Configuration section)
 
 # Launch RunTracker
-docker compose up --build
+docker compose up --build api db
+
+# Apply db migrations
+docker compose run migrate
 ```
 
 ## Configuration

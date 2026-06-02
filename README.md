@@ -40,7 +40,7 @@ docker compose up --build
 | `SECRET_KEY`                  | JWT signing key                | —            |
 | `ALGORITHM`                   | JWT signing algorithm          | `HS256`      |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT token lifetime (minutes)   | `30`         |
-| `database_url`                | Full PostgreSQL connection URL | —            |
+| `DATABASE_URL`                | Full PostgreSQL connection URL | —            |
 | `POSTGRES_USER`               | PostgreSQL username            | `postgres`   |
 | `POSTGRES_PASSWORD`           | PostgreSQL password            | —            |
 | `POSTGRES_DB`                 | PostgreSQL database name       | `runtracker` |

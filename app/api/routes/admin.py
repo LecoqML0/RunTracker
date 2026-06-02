@@ -4,7 +4,6 @@ from sqlmodel import Session
 
 from app.schemas.user import UserRead, UserDB, UserCreate
 from app.schemas.run import RunRead, RunDB
-from app.security import hash_password
 from app.db.session import get_session
 import app.db.user as user_db
 import app.db.run as run_db
@@ -19,9 +18,8 @@ async def create_user(
     user: UserCreate,
     session: Session = Depends(get_session)
 ) -> UserRead:
-    user.hashed_password = hash_password(user.password)
-    user_db.create_user(user, session)
-    return UserRead.model_validate(user)
+    new_user = user_db.create_user(user, session)
+    return UserRead.model_validate(new_user)
 
 @router.get("/users", response_model=list[UserRead])
 def read_users(

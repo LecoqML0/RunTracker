@@ -2,6 +2,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
+from sqlalchemy.exc import IntegrityError
 
 from app.schemas.user import UserCreateForm, UserCreate, UserRead
 from app.security import create_access_token, verify_password
@@ -42,3 +43,6 @@ async def register(
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    except IntegrityError as e:
+        raise HTTPException(status_code=400, detail="Email already registered")

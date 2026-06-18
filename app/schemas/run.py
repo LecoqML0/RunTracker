@@ -4,8 +4,8 @@ from sqlmodel import Field, SQLModel
 from app.schemas.user import UserRead
 
 class RunBase(SQLModel):
-    run_name: str
-    distance: float
+    run_name: str = Field(..., min_length=3, max_length=100)
+    distance: float = Field(..., gt=0) # constraint for distance to be greater than 0
 
 class RunDB(RunBase, table=True):
     __tablename__ = "runs"  # type: ignore

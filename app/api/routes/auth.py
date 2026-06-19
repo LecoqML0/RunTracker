@@ -1,26 +1,24 @@
-from typing import Annotated
 from fastapi import Depends, HTTPException, status, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 from sqlalchemy.exc import IntegrityError
 
-from app.schemas.user import UserCreateForm, UserCreate, UserRead
+from app.schemas.user import UserCreateForm, UserCreate, UserRead, UserLoginForm
 from app.security import create_access_token, verify_password
 from app.db.session import get_session
 import app.db.user as user_db
 
 router = APIRouter()
 
-@router.post("/token")
+@router.post("/login")
 async def login(
-    form_data: Annotated[OAuth2PasswordRequestForm,Depends()],
+    form_login: UserLoginForm,
     session: Session = Depends(get_session)
 ):
-    active_user = user_db.get_user_from_email(form_data.username, session)
+    active_user = user_db.get_user_from_email(form_login.email, session)
 
     if not active_user or not active_user.user_id:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    if not verify_password(form_data.password, active_user.hashed_password):
+    if not verify_password(form_login.password, active_user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     token = create_access_token(active_user.user_id)

@@ -8,7 +8,7 @@ import app.security as security
 from app.db.user import get_user_from_id
 from app.schemas.user import UserDB
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 async def get_active_user(
         token: Annotated[str, Depends(oauth2_scheme)],
